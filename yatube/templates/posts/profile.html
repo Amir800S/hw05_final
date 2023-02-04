@@ -1,0 +1,32 @@
+<!-- Профайл пользователя -->
+{% extends "base.html" %}
+{% block title %}Профайл пользователя {{ usermodel.username }}{% endblock %}
+{% block content %}
+  <div class="mb-5">
+    <h1>Страница пользователя {{ usermodel.username }}</h1>
+    <h4>
+      Всего постов автора: <span>{{ post_list|length }}</span>
+    </h4>
+    {% if following %}
+      <a
+        class="btn btn-lg btn-light"
+        href="{% url 'posts:profile_unfollow' usermodel.username %}" role="button"
+      >
+        Отписаться
+      </a>
+    {% else %}
+      <a
+        class="btn btn-lg btn-primary"
+        href="{% url 'posts:profile_follow' usermodel.username %}" role="button"
+      >
+        Подписаться
+      </a>
+   {% endif %}
+    {% for post in page_obj %}
+      {% include 'posts/includes/postcard.html' with profile=True %}
+      {% if not forloop.last %}<hr>
+      {% endif %}
+    {% endfor %}
+    {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}

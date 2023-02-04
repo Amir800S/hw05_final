@@ -1,0 +1,33 @@
+<!-- Форма авторизации на сайте -->
+{% extends "base.html" %}
+{% block title %}Войти{% endblock %}
+{% block content %}
+{% load user_filters %}
+<div class="row justify-content-center">
+  <div class="col-md-8 p-5">
+    <div class="card">
+      <div class="card-header">
+        Войти на сайт
+      </div>
+      <div class="card-body">
+        <!-- Форма обработки ошибок при вводе-->
+        {% include 'includes/error_form.html' %}
+        <form method="post" {% if action_url %} action="{% url action_url %}" {% endif %}>
+          {% csrf_token %}
+          <!-- Форма авторизации -->
+          {% include 'includes/form.html' %}
+          <div class="col-md-6 offset-md-4">
+            <button type="submit" class="btn btn-primary" href="{% url 'posts:index' %}">
+              Войти
+            </button>
+            <!-- Ссылка на восстановление пароля -->
+            <a href="{% url 'users:reset_password' %}" class="btn btn-link">
+              Забыли пароль?
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
