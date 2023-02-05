@@ -9,7 +9,7 @@ from ...models import Comment, Follow, Group, Post
 User = get_user_model()
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(
-    dir=settings.MEDIA_ROOT
+    dir=settings.BASE_DIR
 )  # Директория для медиа-файлов
 TEST_RANGE = 5  # Число постов на второй странице Paginator
 FIRST_PAGE = 1  # Первая страница Paginator
