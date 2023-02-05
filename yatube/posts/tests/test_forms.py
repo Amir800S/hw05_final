@@ -22,11 +22,6 @@ class TaskCreateFormTests(TestCase):
         cls.post_form = PostForm()
         cls.comment_form = CommentForm()
 
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(models.TEMP_MEDIA_ROOT, ignore_errors=True)
-
     def setUp(self):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
