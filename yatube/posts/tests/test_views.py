@@ -142,27 +142,48 @@ class TaskPagesTests(TestCase):
     def test_user_can_follow(self):
         """ Проверка пользователь может подписаться """
         count = Follow.objects.all().count()
-        self.authorized_client.post(
-            reverse('posts:profile_follow', args=(self.second_user,)),
+        response = self.authorized_client.post(
+            reverse('posts:profile_follow', args=(self.second_user.username,)),
+            data={
+                'user': self.user.username,
+                'author': self.second_user.username
+            },
+            follow=True
         )
-        self.assertEqual(count, count + 1)
+        self.assertRedirects(response,
+                             reverse('posts:profile',
+                                     args=(self.second_user.username,)))
+        self.assertEqual(Follow.objects.all().count(), count + 1)
 
     def test_user_can_unfollow(self):
         """ Проверка пользователь может оmписаться """
+        models.follow()  # Делаем подписку в БД
         count = Follow.objects.all().count()
-        self.authorized_client.post(
-            reverse('posts:profile_unfollow', args=(self.second_user,)),
+        response = self.authorized_client.post(
+            reverse(
+                'posts:profile_unfollow', args=(self.second_user.username,)
+            ),
+            data={
+                'user': self.user.username,
+                'author': self.second_user.username
+            },
+            follow=True
         )
-        self.assertEqual(count, count - 1)
+        self.assertRedirects(response,
+                             reverse('posts:profile',
+                                     args=(self.second_user.username,)))
+        self.assertEqual(Follow.objects.all().count(), count - 1)
 
     def test_if_post_in_favourites(self):
-        """ Запись в ленте избранных """
+        """ Есть запись в ленте избранных """
         models.follow()
         post_by_author = models.second_post()
         response = self.authorized_client.get(
             reverse('posts:follow_index'),
         )
-        self.assertIn(post_by_author, response.context['page_obj'].object_list)
+        self.assertIn(
+            post_by_author, response.context['page_obj'].object_list
+        )
 
     def test_if_post_not_in_favourites(self):
         """ Нет записи в ленте избранных """
@@ -170,4 +191,6 @@ class TaskPagesTests(TestCase):
         response = self.authorized_client.get(
             reverse('posts:follow_index'),
         )
-        self.assertNotIn(post_by_author, response.context['page_obj'].object_list)
+        self.assertNotIn(
+            post_by_author, response.context['page_obj'].object_list
+        )

@@ -5,8 +5,8 @@ from http import HTTPStatus
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..forms import PostForm
-from ..models import Post, User
+from ..forms import CommentForm, PostForm
+from ..models import Comment, Post, User
 from .fixtures import models
 
 
@@ -19,7 +19,8 @@ class TaskCreateFormTests(TestCase):
         cls.group = models.group()
         cls.second_group = models.second_group()
         cls.post = models.post()
-        cls.form = PostForm()
+        cls.post_form = PostForm()
+        cls.comment_form = CommentForm()
 
     @classmethod
     def tearDownClass(cls):
@@ -96,7 +97,40 @@ class TaskCreateFormTests(TestCase):
         )
         self.assertEqual(Post.objects.count(), post_count)
 
-    def test_title_label(self):
+    def test_create_comment(self):
+        """ Тест отправки формы коммента со страницы Post Detail """
+        Comment.objects.all().delete()
+        comment_count = Comment.objects.count()
+        form_data = {
+            'text': 'TestText',
+        }
+        response = self.authorized_client.post(
+            reverse('posts:create_comment', args=(self.post.id,)),
+            data=form_data,
+            follow=True
+        )
+        self.assertRedirects(response,
+                             reverse('posts:post_detail',
+                                     args=(self.post.id,)))
+        test_comment = Comment.objects.first()
+        self.assertEqual(Comment.objects.count(), comment_count + 1)
+        self.assertEqual(test_comment.text, form_data['text'])
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_can_not_create_comment_guest(self):
+        """ Неавторизированный пользователь не может комментировать"""
+        comment_count = Comment.objects.count()
+        form_data = {
+            'text': 'Test',
+        }
+        self.client.post(
+            reverse('posts:create_comment', args=(self.post.id,)),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(Comment.objects.count(), comment_count)
+
+    def test_title_label_post_form(self):
         """ Тест labels PostForm"""
         labels_fields = (
             ('text', 'Введите текст'),
@@ -105,11 +139,11 @@ class TaskCreateFormTests(TestCase):
         for label_field, desc in labels_fields:
             with self.subTest(label_field=label_field):
                 self.assertEqual(
-                    self.form.fields[label_field].label,
+                    self.post_form.fields[label_field].label,
                     desc
                 )
 
-    def test_title_help_text(self):
+    def test_title_help_text_post_form(self):
         """ Тест help_text PostForm"""
         help_text_fields = (
             ('text', 'Текст поста'),
@@ -118,7 +152,31 @@ class TaskCreateFormTests(TestCase):
         for help_text_field, desc in help_text_fields:
             with self.subTest(help_text_field=help_text_field):
                 self.assertEqual(
-                    self.form.fields[help_text_field].help_text,
+                    self.post_form.fields[help_text_field].help_text,
+                    desc
+                )
+
+    def test_title_label_comment_form(self):
+        """ Тест labels CommentForm"""
+        labels_fields = (
+            ('text', 'Текст комментария'),
+        )
+        for label_field, desc in labels_fields:
+            with self.subTest(label_field=label_field):
+                self.assertEqual(
+                    self.comment_form.fields[label_field].label,
+                    desc
+                )
+
+    def test_title_help_text_comment_form(self):
+        """ Тест help_text CommentForm"""
+        help_text_fields = (
+            ('text', 'Напишите что нибудь...'),
+        )
+        for help_text_field, desc in help_text_fields:
+            with self.subTest(help_text_field=help_text_field):
+                self.assertEqual(
+                    self.comment_form.fields[help_text_field].help_text,
                     desc
                 )
 

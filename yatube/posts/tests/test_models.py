@@ -10,6 +10,7 @@ class PostModelTest(TestCase):
         cls.user = models.user()
         cls.group = models.group()
         cls.post = models.post()
+        cls.comment = models.comment()
 
     def test_post_have_correct_object_names(self):
         """ Модель Post отображается правильно """
@@ -48,6 +49,19 @@ class PostModelTest(TestCase):
                         verbose_field).verbose_name, desc
                 )
 
+    def test_verbose_names_comment(self):
+        """ Проверка verbose Comment"""
+        fields = (
+            ('author', 'Автор'),
+            ('text', 'Текст комментария'),
+        )
+        for verbose_field, desc in fields:
+            with self.subTest(verbose_field=verbose_field):
+                self.assertEqual(
+                    self.comment._meta.get_field(
+                        verbose_field).verbose_name, desc
+                )
+
     def test_help_texts_post(self):
         """ Проверка help_text Post"""
         fields = (
@@ -69,3 +83,13 @@ class PostModelTest(TestCase):
             with self.subTest(fields=fields):
                 self.assertEqual(
                     self.group._meta.get_field(fields).help_text, desc)
+
+    def test_help_texts_comment(self):
+        """ Проверка help_text Comment"""
+        fields = (
+            ('text', 'Напишите что нибудь...'),
+        )
+        for fields, desc in fields:
+            with self.subTest(fields=fields):
+                self.assertEqual(
+                    self.comment._meta.get_field(fields).help_text, desc)
