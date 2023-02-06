@@ -26,6 +26,11 @@ def second_user():
     return User.objects.create_user(username='SecondTestUser')
 
 
+def third_user():
+    """ Модель Second User """
+    return User.objects.create_user(username='ThirdTestUser')
+
+
 def group():
     """ Модель Group """
     return Group.objects.create(
@@ -71,6 +76,16 @@ def bulk_post():
     return Post.objects.bulk_create(
         [Post(text='Test',
               author=User.objects.get(username='TestUser'),
+              group=Group.objects.get(slug='TestSlug')
+              ) for objs in range(
+            TEST_RANGE + settings.POSTS_ON_MAIN)])
+
+
+def second_bulk_post():
+    """ Модель Post Bulk Create """
+    return Post.objects.bulk_create(
+        [Post(text='Test',
+              author=User.objects.get(username='SecondTestUser'),
               group=Group.objects.get(slug='TestSlug')
               ) for objs in range(
             TEST_RANGE + settings.POSTS_ON_MAIN)])

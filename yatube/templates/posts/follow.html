@@ -1,19 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Последние обновления на сайте{% endblock %}
 {% block content %}
-{% comment %} Кэширование страницы Index {% endcomment %}
-{% load cache %} 
-  {% cache 20 index_page %} 
-    <div class="container py-5">
-      <h1>Главная страница Yatube</h1>
-      {% include 'posts/includes/switcher.html' %}
-      {% for post in page_obj %}
-        {% include 'posts/includes/postcard.html' %}
-        {% if not forloop.last %}<hr>{% endif %}
-      {% endfor %}
-      {% include 'posts/includes/paginator.html' %}
-    </div> 
-  {% endcache %}
+{% load cache %}
+  <div class="container py-5">
+    <h1>Главная страница Yatube</h1>
+    {% include 'posts/includes/switcher.html' with follow_index=True %}
+    {% cache 20 index_page %} 
+    {% for post in page_obj %}
+      {% include 'posts/includes/postcard.html' %}
+      {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+    {% endcache %}
+    {% include 'posts/includes/paginator.html' %}
+  </div> 
 {% endblock %} 
 
 

@@ -1,46 +1,62 @@
 from django.contrib import admin
 
-from .models import Comment, Group, Post
+from .models import Comment, Follow, Group, Post
 
 
-class PostAdmin(admin.ModelAdmin):  # Администрирование постов
+class PostAdmin(admin.ModelAdmin):
+    """ Админ Постов """
     list_display = (
         'pk',
         'text',
         'pub_date',
         'author',
         'group',
-    )  # Отображаемые поля поста
+    )
     list_editable = ('group',)
-    search_fields = ('text',)  # Поиск по тексту
-    list_filter = ('pub_date',)  # Фильтрация по дате публикации
-    empty_value_display = '-пусто-'  # Если поле пустое
+    search_fields = ('text',)
+    list_filter = ('pub_date',)
+    empty_value_display = '-пусто-'
 
 
-class GroupAdmin(admin.ModelAdmin):  # Администрирование групп
+class GroupAdmin(admin.ModelAdmin):
+    """ Админ Групп """
     list_display = (
         'title',
         'slug',
-    )  # Отображаемые поля групп
-    search_fields = ('title',)  # Поиск по заголовку
-    list_filter = ('title',)  # Фильтрация по заголовку
+    )
+    search_fields = ('title',)
+    list_filter = ('title',)
 
 
-class CommentAdmin(admin.ModelAdmin):  # Администирование Комментариев
+class CommentAdmin(admin.ModelAdmin):
+    """ Админ Комментов """
     list_display = (
         'author',
         'text',
         'post',
         'pub_date'
-    )  # Отображаемые поля комментариев
-    list_filter = ('pub_date',)  # Фильтрация по дате публикации
+    )
+    list_filter = ('pub_date',)
     search_fields = (
         'author',
         'text',
         'pub_date'
-    )  # Поиск по автору, тексту и дате публикации
+    )
+
+
+class FollowAdmin(admin.ModelAdmin):
+    """ Админ Подписок """
+    list_display = (
+        'author',
+        'user',
+    )
+    search_fields = (
+        'author',
+        'user',
+    )
 
 
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Group, GroupAdmin)
+admin.site.register(Follow, FollowAdmin)

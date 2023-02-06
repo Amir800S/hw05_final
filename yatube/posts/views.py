@@ -30,20 +30,15 @@ def group_posts(request, slug):
 
 def profile(request, username):
     """ Страница автора поста """
-    user_of_profile = get_object_or_404(User, username=username)
-    post_list = user_of_profile.posts.select_related('group').all()
+    author = get_object_or_404(User, username=username)
+    post_list = author.posts.select_related('group').all()
     page_obj = paginator(request, post_list)
-    # Проверка два раза подписаться нельзя
-    if request.user.is_authenticated and Follow.objects.filter(
-            user=request.user, author=user_of_profile
-    ).exists():
-        following = True
-    else:
-        following = False
+    following = request.user.is_authenticated and author.following.filter(
+        user=request.user).exists()
     context = {
         'page_obj': page_obj,
-        'usermodel': user_of_profile,
-        'post_list': post_list,  # Отображение числа постов пользователя
+        'usermodel': author,
+        'post_list': post_list,
         'following': following
     }
 
@@ -53,11 +48,10 @@ def profile(request, username):
 def post_detail(request, post_id):
     """ Подробное чтение поста """
     get_post = get_object_or_404(Post, id=post_id)
-    onepost = get_post
-    comments = get_post.comments.all()  # Комментарии к посту
-    comment_form = CommentForm()  # Форма коммента
+    comments = get_post.comments.prefetch_related('author')
+    comment_form = CommentForm()
     context = {
-        'onepost': onepost,
+        'onepost': get_post,
         'comments': comments,
         'comment_form': comment_form
     }
@@ -68,7 +62,7 @@ def post_detail(request, post_id):
 def post_create(request):
     """ Функция создания поста """
     form = PostForm(request.POST or None, request.FILES or None)
-    if form.is_valid():  # Валидация формы создания поста
+    if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
         post.save()
@@ -79,8 +73,8 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     """ Редактирование поста """
-    post = get_object_or_404(Post, id=post_id)  # Получения поста
-    if post.author != request.user:  # Проверка прав для редактирования
+    post = get_object_or_404(Post, id=post_id)
+    if post.author != request.user:
         return redirect('posts:post_detail', post_id=post_id)
     form = PostForm(
         request.POST or None,
@@ -114,7 +108,11 @@ def create_comment(request, post_id):
 @login_required
 def follow_index(request):
     """ Все подписки пользователя """
-    post_list = Post.objects.filter(author__following__user=request.user)
+    post_list = Post.objects.select_related(
+        'author', 'group'
+    ).filter(
+        author__following__user=request.user
+    )
     page_obj = paginator(request, post_list)
     context = {
         'page_obj': page_obj
@@ -126,19 +124,19 @@ def follow_index(request):
 def profile_follow(request, username):
     """ View подписки на автора """
     follow_author = get_object_or_404(User, username=username)
-    if follow_author != request.user:  # Нельзя подписаться на себя
+    if follow_author != request.user:
         Follow.objects.get_or_create(
             user=request.user,
             author=follow_author
-        )  # Нельзя подписаться на себя
+        )
     return redirect('posts:profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
     """ View отписки на автора """
-    follow_author = get_object_or_404(User, username=username)
     Follow.objects.get(
-        user=request.user, author=follow_author
+        user=request.user, author=get_object_or_404(
+            User, username=username)
     ).delete()
     return redirect('posts:profile', username=username)

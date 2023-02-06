@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import UniqueConstraint, CheckConstraint
 from django.db import models
 
 
@@ -41,8 +42,7 @@ class Post(models.Model):
     image = models.ImageField('Картинка',
                               upload_to='posts/',
                               blank=True,
-                              null=True
-                              )
+                              null=True)
 
     class Meta:
         """ Metaclass Post """
@@ -68,11 +68,11 @@ class Comment(models.Model):
 
     class Meta:
         """ Metaclass Comment """
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return 'Comment by {}'.format(self.author)
+        return 'Комментарий от {}'.format(self.author)
 
 
 class Follow(models.Model):
@@ -91,4 +91,13 @@ class Follow(models.Model):
     )
 
     class Meta:
+        """ Metaclass Follow """
         verbose_name = 'Лента'
+        UniqueConstraint(fields=['author', 'user'],
+                         name='re-subscription')
+        CheckConstraint(
+            name='prevent_self_follow',
+            check=~models.Q(from_user=models.F('to_user')), )
+
+    def __str__(self):
+        return '{} подписан на {}'.format(self.user, self.author)

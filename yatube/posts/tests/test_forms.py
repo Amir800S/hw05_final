@@ -1,12 +1,11 @@
 import shutil
-
 from http import HTTPStatus
 
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from ..forms import CommentForm, PostForm
-from ..models import Comment, Post, User
+from ..models import Comment, Post
 from .fixtures import models
 
 
@@ -115,6 +114,8 @@ class TaskCreateFormTests(TestCase):
         test_comment = Comment.objects.first()
         self.assertEqual(Comment.objects.count(), comment_count + 1)
         self.assertEqual(test_comment.text, form_data['text'])
+        self.assertEqual(test_comment.author, self.user)
+        self.assertEqual(test_comment.post, self.post)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_can_not_create_comment_guest(self):
@@ -179,18 +180,3 @@ class TaskCreateFormTests(TestCase):
                     self.comment_form.fields[help_text_field].help_text,
                     desc
                 )
-
-    def test_user_created_after_signup(self):
-        """ Новый User создался через форму на SignUp"""
-        users_count = User.objects.count()
-        self.client.post(
-            reverse('users:signup'),
-            data={
-                'username': 'UserNameForTest',
-                'email': 'testuser123@email.com',
-                'password1': 'PaSSword123123',
-                'password2': 'PaSSword123123'
-            },
-            follow=True
-        )
-        self.assertEqual(User.objects.count(), users_count + 1)

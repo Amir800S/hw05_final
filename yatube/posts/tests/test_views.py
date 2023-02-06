@@ -1,7 +1,8 @@
+from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
-from django.core.cache import cache
+
 
 from .fixtures import models
 from ..forms import PostForm
@@ -97,7 +98,6 @@ class TaskPagesTests(TestCase):
                     response.context['form'],
                     PostForm
                 )
-                # Проверка полей формы
                 self.assertIsInstance(response.context.get(
                     'form').fields.get('text'), forms.fields.CharField)
                 self.assertIsInstance(response.context.get(
@@ -124,18 +124,18 @@ class TaskPagesTests(TestCase):
         """ Тест кэширования страницы Index """
         first_response = self.authorized_client.get(
             reverse('posts:index')
-        )  # Первый запрос
+        )
         first_context = first_response.content
-        Post.objects.all().delete()  # Удаление всех постов
+        Post.objects.all().delete()
         second_response = self.authorized_client.get(
             reverse('posts:index')
-        )  # Второй запрос
+        )
         second_context = second_response.content
         self.assertEqual(first_context, second_context)
-        cache.clear()  # Чистим Кэш
+        cache.clear()
         third_response = self.authorized_client.get(
             reverse('posts:index')
-        )  # Третий запрос
+        )
         third_context = third_response.content
         self.assertNotEqual(third_context, second_context)
 
@@ -155,9 +155,39 @@ class TaskPagesTests(TestCase):
                                      args=(self.second_user.username,)))
         self.assertEqual(Follow.objects.all().count(), count + 1)
 
+    def test_user_cannot_follow_again(self):
+        """ Проверка пользователь не может подписаться дважды """
+        models.follow()
+        count = Follow.objects.all().count()
+        response = self.authorized_client.post(
+            reverse('posts:profile_follow', args=(self.second_user.username,)),
+            data={
+                'user': self.user.username,
+                'author': self.second_user.username
+            },
+            follow=True
+        )
+        self.assertRedirects(response,
+                             reverse('posts:profile',
+                                     args=(self.second_user.username,)))
+        self.assertEqual(Follow.objects.all().count(), count)
+
+    def test_user_cannot_follow_his_account(self):
+        """ Проверка пользователь не может подписаться на себя """
+        count = Follow.objects.all().count()
+        self.authorized_client.post(
+            reverse('posts:profile_follow', args=(self.user.username,)),
+            data={
+                'user': self.user.username,
+                'author': self.user.username
+            },
+            follow=True
+        )
+        self.assertEqual(Follow.objects.all().count(), count)
+
     def test_user_can_unfollow(self):
         """ Проверка пользователь может оmписаться """
-        models.follow()  # Делаем подписку в БД
+        models.follow()
         count = Follow.objects.all().count()
         response = self.authorized_client.post(
             reverse(

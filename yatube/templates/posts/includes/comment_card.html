@@ -1,4 +1,3 @@
-{% comment %} Форма для коммента {% endcomment %}
 {% if user.is_authenticated %}
   <h6>Добавить комментарий...</h6>
   <form method="POST" action="{% url 'posts:create_comment' onepost.id %}">
@@ -9,7 +8,6 @@
 {% else %}
   <span style='color: red'>Войдите чтобы оставить комментарий...</span>
 {% endif %}
- {% comment %} Комментарии к посту {% endcomment %}
 {% for comment in comments %}
   <div class="comments" style="padding: 10px;">
     <p class="font-weight-bold">
@@ -18,7 +16,7 @@
         Дата публикации: {{ comment.pub_date }}
       </span>
     </p>
-    {{ comment.text }}
+    {{ comment.text|linebreaksbr }}
   </div>
   {% if not forloop.last %}<hr>{% endif %}
 {% endfor %}
