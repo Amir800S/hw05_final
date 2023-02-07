@@ -103,10 +103,10 @@ class TaskPagesTests(TestCase):
                     response.context['form'],
                     PostForm
                 )
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context['form'].fields[value]
-                self.assertIsInstance(form_field, expected)
+                for value, expected in form_fields.items():
+                    with self.subTest(value=value):
+                        form_field = response.context['form'].fields[value]
+                        self.assertIsInstance(form_field, expected)
 
     def test_in_intended_group(self):
         """ Тест пост попал в нужную группу """

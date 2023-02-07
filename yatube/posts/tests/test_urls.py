@@ -56,26 +56,17 @@ class TaskURLTests(TestCase):
         """ Страницы доступные Авторизированному автору """
         for name, args, url in self.test_urls_with_reverse:
             with self.subTest(name=name):
-                response = self.authorized_client.get(
+                response = self.second_authorized_client.get(
                     reverse(name, args=args))
-                self.assertTrue(response.status_code, HTTPStatus.OK)
-                response_follow = self.authorized_client.get(
-                    reverse('posts:profile_follow', args=(self.second_user,))
-                )
-                self.assertRedirects(
-                    response_follow, reverse(
-                        'posts:profile', args=(self.second_user.username,)
-                    ))
-                response_404 = self.authorized_client.get(
-                    reverse('posts:profile_unfollow', args=(self.user,))
-                )
-                self.assertEqual(
-                    response_404.status_code, HTTPStatus.NOT_FOUND)
-                response_comment = self.authorized_client.get(
-                    reverse('posts:create_comment', args=(self.post.id,))
-                )
-                self.assertEqual(
-                    response_comment.status_code, HTTPStatus.FOUND)
+                if name in ['posts:profile_follow',
+                            'posts:create_comment']:
+                    self.assertEqual(
+                        response.status_code, HTTPStatus.FOUND)
+                elif name == 'posts:profile_unfollow':
+                    self.assertEqual(
+                        response.status_code, HTTPStatus.NOT_FOUND)
+                else:
+                    self.assertTrue(response.status_code, HTTPStatus.OK)
 
     def test_authorized_not_author(self):
         """ Страницы доступные Авторизированному не автору"""
@@ -83,29 +74,17 @@ class TaskURLTests(TestCase):
             with self.subTest(name=name):
                 response = self.third_authorized_client.get(
                     reverse(name, args=args))
-                if name == 'posts:post_edit':
+                if name in ['posts:post_edit', 'posts:create_comment']:
                     self.assertRedirects(
                         response, reverse('posts:post_detail', args=args))
-                elif name == 'posts:create_comment':
+                elif name in ['posts:profile_unfollow',
+                              'posts:profile_follow']:
                     self.assertRedirects(
-                        response, reverse('posts:post_detail', args=args))
+                        response, reverse(
+                            'posts:profile', args=(self.second_user.username,)
+                        ))
                 else:
                     self.assertTrue(response.status_code, HTTPStatus.OK)
-                response_follow = self.third_authorized_client.get(
-                    reverse('posts:profile_follow', args=(
-                        self.second_user.username,))
-                )
-                self.assertRedirects(
-                    response_follow, reverse(
-                        'posts:profile', args=(self.second_user.username,)
-                    ))
-                response_unfollow = self.third_authorized_client.get(
-                    reverse('posts:profile_unfollow', args=(self.second_user,))
-                )
-                self.assertRedirects(
-                    response_unfollow, reverse(
-                        'posts:profile', args=(self.second_user,)
-                    ))
 
     def test_not_authorized_not_author(self):
         """ Страницы недоступные Неавторизированному пользователю"""

@@ -48,7 +48,8 @@ def profile(request, username):
 def post_detail(request, post_id):
     """ Подробное чтение поста """
     get_post = get_object_or_404(
-        Post.objects.prefetch_related('comments__author'), id=post_id)
+        Post.objects.select_related('author').prefetch_related(
+            'comments__author'), id=post_id)
     comment_form = CommentForm()
     context = {
         'onepost': get_post,
