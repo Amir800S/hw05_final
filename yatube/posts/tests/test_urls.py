@@ -92,7 +92,8 @@ class TaskURLTests(TestCase):
                 else:
                     self.assertTrue(response.status_code, HTTPStatus.OK)
                 response_follow = self.third_authorized_client.get(
-                    reverse('posts:profile_follow', args=(self.second_user.username,))
+                    reverse('posts:profile_follow', args=(
+                        self.second_user.username,))
                 )
                 self.assertRedirects(
                     response_follow, reverse(
