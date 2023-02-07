@@ -47,12 +47,12 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     """ Подробное чтение поста """
-    get_post = get_object_or_404(Post, id=post_id)
-    comments = get_post.comments.prefetch_related('author')
+    get_post = get_object_or_404(
+        Post.objects.prefetch_related('comments__author'), id=post_id)
     comment_form = CommentForm()
     context = {
         'onepost': get_post,
-        'comments': comments,
+        'comments': get_post.comments.all(),
         'comment_form': comment_form
     }
     return render(request, 'posts/post_detail.html', context)
@@ -135,8 +135,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     """ View отписки на автора """
-    Follow.objects.get(
-        user=request.user, author=get_object_or_404(
-            User, username=username)
-    ).delete()
+    get_object_or_404(Follow,
+                      author__username=username,
+                      ).delete()
     return redirect('posts:profile', username=username)

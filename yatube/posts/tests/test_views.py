@@ -84,11 +84,16 @@ class TaskPagesTests(TestCase):
         self.what_is_in_context('posts:post_detail', (self.post.id,), True)
 
     def test_create_and_edit_posts(self):
-        """ Проверка Create Post и Edit Post """
+        """ Проверка формы на Post Create и Post Edit """
         edit_and_create_test = (
             ('posts:post_edit', (self.post.id,)),
             ('posts:post_create', None)
         )
+        form_fields = {
+            'text': forms.fields.CharField,
+            'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField,
+        }
         for rev_name, args in edit_and_create_test:
             with self.subTest(rev_name=rev_name, args=args):
                 response = self.authorized_client.get(
@@ -98,12 +103,10 @@ class TaskPagesTests(TestCase):
                     response.context['form'],
                     PostForm
                 )
-                self.assertIsInstance(response.context.get(
-                    'form').fields.get('text'), forms.fields.CharField)
-                self.assertIsInstance(response.context.get(
-                    'form').fields.get('group'), forms.fields.ChoiceField)
-                self.assertIsInstance(response.context.get(
-                    'form').fields.get('image'), forms.fields.ImageField)
+        for value, expected in form_fields.items():
+            with self.subTest(value=value):
+                form_field = response.context['form'].fields[value]
+                self.assertIsInstance(form_field, expected)
 
     def test_in_intended_group(self):
         """ Тест пост попал в нужную группу """

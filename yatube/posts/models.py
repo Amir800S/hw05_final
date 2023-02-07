@@ -97,7 +97,7 @@ class Follow(models.Model):
                          name='re-subscription')
         CheckConstraint(
             name='prevent_self_follow',
-            check=~models.Q(from_user=models.F('to_user')), )
+            check=~models.Q(user=models.F('author')), )
 
     def __str__(self):
         return '{} подписан на {}'.format(self.user, self.author)

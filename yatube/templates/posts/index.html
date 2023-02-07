@@ -5,15 +5,13 @@
   <div class="container py-5">
     <h1>Главная страница Yatube</h1>
     {% include 'posts/includes/switcher.html' with index=True %}
-    {% cache 20 index_page %}
+    {% cache 30 sidebar index page_obj.number %}
     {% for post in page_obj %} 
       {% include 'posts/includes/postcard.html' %}
       {% if not forloop.last %}<hr>{% endif %}
     {% endfor %}
     {% endcache %}
-    {% cache 30 sidebar index page_obj.number %}
     {% include 'posts/includes/paginator.html' %}
-    {% endcache %}
   </div> 
 {% endblock %} 
 
