@@ -39,11 +39,11 @@ class TaskURLTests(TestCase):
              f'/posts/{self.post.id}/comment/'),
             ('posts:follow_index', None, '/follow/'),
             ('posts:profile_follow',
-             (self.second_user.username,),
-             f'/profile/{self.second_user.username}/follow/'),
+             (self.user.username,),
+             f'/profile/{self.user.username}/follow/'),
             ('posts:profile_unfollow',
-             (self.second_user.username,),
-             f'/profile/{self.second_user.username}/unfollow/'),
+             (self.user.username,),
+             f'/profile/{self.user.username}/unfollow/'),
         )  # Кортеж Test URls
 
     def test_urls_with_reverse(self):
@@ -81,7 +81,7 @@ class TaskURLTests(TestCase):
                               'posts:profile_follow']:
                     self.assertRedirects(
                         response, reverse(
-                            'posts:profile', args=(self.second_user.username,)
+                            'posts:profile', args=(self.user.username,)
                         ))
                 else:
                     self.assertEqual(response.status_code, HTTPStatus.OK)
