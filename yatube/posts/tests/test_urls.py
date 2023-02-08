@@ -58,10 +58,12 @@ class TaskURLTests(TestCase):
             with self.subTest(name=name):
                 response = self.authorized_client.get(
                     reverse(name, args=args))
-                if name in ['posts:profile_follow',
-                            'posts:create_comment']:
-                    self.assertEqual(
-                        response.status_code, HTTPStatus.FOUND)
+                if name == 'posts:profile_follow':
+                    self.assertRedirects(
+                        response, reverse('posts:profile', args=args))
+                elif name == 'posts:create_comment':
+                    self.assertRedirects(
+                        response, reverse('posts:post_detail', args=args))
                 elif name == 'posts:profile_unfollow':
                     self.assertEqual(
                         response.status_code, HTTPStatus.NOT_FOUND)

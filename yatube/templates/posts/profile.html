@@ -6,7 +6,7 @@
     <h4>Всего постов автора: <span>{{ post_list|length }}</span></h4>
     <h6>Подписчики: {{ usermodel.following|length }}</h6>
     <h6>Подписки: {{ usermodel.follower|length }}</h6>
-    {% if not user.is_authenticated or not user == usermodel %}
+    {% if user.is_authenticated or not user == usermodel %}
       {% if following %}
         <a
           class="btn btn-lg btn-light"
