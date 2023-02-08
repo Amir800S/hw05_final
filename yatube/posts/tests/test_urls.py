@@ -56,7 +56,7 @@ class TaskURLTests(TestCase):
         """ Страницы доступные Авторизированному автору """
         for name, args, url in self.test_urls_with_reverse:
             with self.subTest(name=name):
-                response = self.second_authorized_client.get(
+                response = self.authorized_client.get(
                     reverse(name, args=args))
                 if name in ['posts:profile_follow',
                             'posts:create_comment']:
@@ -66,7 +66,7 @@ class TaskURLTests(TestCase):
                     self.assertEqual(
                         response.status_code, HTTPStatus.NOT_FOUND)
                 else:
-                    self.assertTrue(response.status_code, HTTPStatus.OK)
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_authorized_not_author(self):
         """ Страницы доступные Авторизированному не автору"""
@@ -84,7 +84,7 @@ class TaskURLTests(TestCase):
                             'posts:profile', args=(self.second_user.username,)
                         ))
                 else:
-                    self.assertTrue(response.status_code, HTTPStatus.OK)
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_not_authorized_not_author(self):
         """ Страницы недоступные Неавторизированному пользователю"""
