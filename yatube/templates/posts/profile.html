@@ -4,8 +4,8 @@
   <div class="container py-5">
     <h1>Страница пользователя {{ usermodel.username }}</h1>
     <h4>Всего постов автора: <span>{{ post_list|length }}</span></h4>
-    <h6>Подписчики: {{ usermodel.following|length }}</h6>
-    <h6>Подписки: {{ usermodel.follower|length }}</h6>
+    <h6>Подписчики: {{ usermodel.following.count }}</h6>
+    <h6>Подписки: {{ usermodel.follower.count }}</h6>
     {% if user.is_authenticated and not user == usermodel %}
       {% if following %}
         <a
@@ -23,6 +23,7 @@
         </a>
       {% endif %}
     {% endif %}
+    <hr>
     {% for post in page_obj %}
       {% include 'posts/includes/postcard.html' with profile=True %}
       {% if not forloop.last %}<hr>
