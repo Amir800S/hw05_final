@@ -33,7 +33,7 @@
       </li>
       <li class="nav-item">
         <a class="nav-link link-light {% if view_name  == 'posts:profile' %}active{% endif %}"
-        <a href="{% url 'posts:profile' user.username %}">Пользователь: {{ user.username }}</a>
+        <a href="{% url 'posts:profile' user.username %}">{{ user.username }}</a>
       </li>
       {% else %} 
       <li class="nav-item"> 

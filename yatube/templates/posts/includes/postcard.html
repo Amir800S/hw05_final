@@ -12,7 +12,7 @@
     </li>
     {% if not profile %}
       <li>
-        <a href="{% url 'posts:profile' post.author %}">все посты пользователя</a>
+        <a  type="button" class="btn btn-primary btn-sm" href="{% url 'posts:profile' post.author %}">Все посты пользователя</a>
       </li>
     {% endif %}
   </ul>
@@ -23,14 +23,14 @@
   {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
     <img class="card-img my-2" src="{{ im.url }}">
   {% endthumbnail %}
-  <a href="{% url 'posts:post_detail' post.id %}">подробная информация</a>
+  <a  type="button" class="btn btn-primary btn-sm" href="{% url 'posts:post_detail' post.id %}">Подробно</a>
   {% if not group_page %}
     {% if post.group %}
-      <a href="{% url 'posts:group_list' post.group.slug %}">
-        все записи группы
+      <a  type="button" class="btn btn-primary btn-sm" href="{% url 'posts:group_list' post.group.slug %}">
+        Все записи группы
       </a>
     {% else %}
-      <span style='color: red'>
+      <span  class="btn btn-default" style='color: red'>
         Этой публикации нет ни в одном сообществе.
       </span>
     {% endif %}

@@ -1,10 +1,16 @@
 {% if user.is_authenticated %}
+  <div class="form-group row my-3">
   <h6>Добавить комментарий...</h6>
   <form method="POST" action="{% url 'posts:create_comment' onepost.id %}">
-    {{ comment_form.as_p }}
+    <div class="input-group">
+    <textarea class="form-control" rows="3" method="POST" action="{% url 'posts:create_comment' onepost.id %}"
+     {{ comment_form.text }}>
+    </div>
     {% csrf_token %}
-    <button type="submit" class="btn btn-primary  btn-lg">Добавить</button>
+    <br>
+    <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
   </form>
+  </div>
 {% else %}
   <span style='color: red'>Войдите чтобы оставить комментарий...</span>
 {% endif %}

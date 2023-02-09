@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Профайл пользователя {{ usermodel.username }}{% endblock %}
 {% block content %}
-  <div class="mb-5">
+  <div class="container py-5">
     <h1>Страница пользователя {{ usermodel.username }}</h1>
     <h4>Всего постов автора: <span>{{ post_list|length }}</span></h4>
     <h6>Подписчики: {{ usermodel.following|length }}</h6>
